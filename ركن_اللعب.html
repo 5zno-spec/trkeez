@@ -102,6 +102,35 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 #pieces button img{pointer-events:none;-webkit-user-drag:none}
 #pieces button.drag{z-index:10;cursor:grabbing;filter:drop-shadow(0 10px 10px rgba(0,0,0,.3))}
 .shapes button.slot.over{border-color:var(--accent)}
+
+/* ---- glass buttons */
+:root{--g-bg:rgba(255,255,255,.42);--g-bd:rgba(255,255,255,.85);--g-tint:rgba(108,79,240,.20);--g-sh:rgba(80,50,170,.18);--g-hi:rgba(255,255,255,.9)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--g-bg:rgba(255,255,255,.10);--g-bd:rgba(255,255,255,.28);--g-tint:rgba(154,132,255,.25);--g-sh:rgba(0,0,0,.4);--g-hi:rgba(255,255,255,.35)}}
+:root[data-theme="dark"]{--g-bg:rgba(255,255,255,.10);--g-bd:rgba(255,255,255,.28);--g-tint:rgba(154,132,255,.25);--g-sh:rgba(0,0,0,.4);--g-hi:rgba(255,255,255,.35)}
+body{background-color:var(--bg);background-image:radial-gradient(circle at 12% 8%,rgba(108,79,240,.28),transparent 42%),radial-gradient(circle at 92% 30%,rgba(255,150,120,.26),transparent 40%),radial-gradient(circle at 20% 92%,rgba(70,190,200,.24),transparent 42%);background-attachment:fixed}
+.gb,.back,.btn{position:relative;overflow:hidden;isolation:isolate;color:var(--ink);
+  background:linear-gradient(145deg,var(--g-hi),transparent 55%),var(--g-bg);
+  border:1.5px solid var(--g-bd);
+  -webkit-backdrop-filter:blur(14px) saturate(1.6);backdrop-filter:blur(14px) saturate(1.6);
+  box-shadow:0 6px 18px var(--g-sh),inset 0 1px 0 var(--g-hi);
+  transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease,border-color .18s ease}
+.btn{background:linear-gradient(145deg,var(--g-hi),transparent 55%),var(--g-tint)}
+.gb::after,.back::after,.btn::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);
+  transform:translateX(-130%);transition:transform .6s ease}
+@media (hover:hover){
+  .gb:hover,.back:hover,.btn:hover{transform:translateY(-3px) scale(1.03);border-color:var(--accent);
+    box-shadow:0 12px 26px var(--g-sh),0 0 0 3px color-mix(in srgb,var(--accent) 28%,transparent),inset 0 1px 0 var(--g-hi)}
+  .gb:hover::after,.back:hover::after,.btn:hover::after{transform:translateX(130%)}
+}
+.gb:active,.back:active,.btn:active{transform:translateY(0) scale(.96);box-shadow:0 3px 10px var(--g-sh),inset 0 1px 0 var(--g-hi)}
+.btn.ib{font-size:1.6rem}
+.winov .btn{color:#fff;background:linear-gradient(145deg,rgba(255,255,255,.4),transparent 55%),rgba(255,255,255,.14);border-color:rgba(255,255,255,.55)}
+@media (prefers-reduced-motion:reduce){
+  .gb,.back,.btn{transition:none}
+  .gb::after,.back::after,.btn::after{display:none}
+  .gb:hover,.back:hover,.btn:hover,.gb:active,.back:active,.btn:active{transform:none}
+}
 </style>
 </head>
 <body>
@@ -130,7 +159,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
       <p class="lvl" id="lvl"></p>
       <div id="board"></div>
       <img id="hintimg" alt="الصورة الأصلية" style="display:none">
-      <div class="row"><button class="btn" id="hint">👁 تلميح</button><button class="btn" id="shuf">اخلط القطع</button><button class="btn" id="nextimg">صورة أخرى</button></div>
+      <div class="row"><button class="btn ib" id="hint" aria-label="تلميح" title="تلميح">👁</button><button class="btn ib" id="shuf" aria-label="اخلط القطع" title="اخلط القطع">🔀</button><button class="btn ib" id="nextimg" aria-label="صورة أخرى" title="صورة أخرى">🖼</button></div>
       <p class="msg" id="m1" aria-live="polite"></p>
     </div>
   </section>
