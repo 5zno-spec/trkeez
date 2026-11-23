@@ -3,14 +3,22 @@ function mix(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.
 
 // ---- navigation
 var inits={};
-function show(id){
+// The phone's back button: opening a game adds a history entry, so "back" returns to the
+// home screen instead of leaving the app (or the store page the game is shown in).
+function inGame(){return !!(history.state&&history.state.s)}
+function show(id,fromHistory){
   hideWin();
   Array.prototype.forEach.call(document.querySelectorAll('.screen'),function(s){s.hidden=s.id!==id});
   if(inits[id])inits[id]();
   if(id==='puz'||id==='shp'){ac();vinit();vplay(id==='puz'?'w:__pz':'w:__drag')}
+  if(!fromHistory&&id!=='home'){try{if(inGame())history.replaceState({s:id},'');else history.pushState({s:id},'')}catch(e){}}
   window.scrollTo(0,0);
 }
-Array.prototype.forEach.call(document.querySelectorAll('[data-go]'),function(b){b.onclick=function(){show(b.dataset.go)}});
+Array.prototype.forEach.call(document.querySelectorAll('[data-go]'),function(b){b.onclick=function(){
+  // the on-screen back arrow does the same as the phone's back button, so the history stays in step
+  if(b.dataset.go==='home'&&inGame())history.back();else show(b.dataset.go);
+}});
+window.addEventListener('popstate',function(e){show((e.state&&e.state.s)||'home',true)});
 
 // ---- 1. picture puzzle
 var IMGS=[{"n": "البحر", "u": "assets/puzzle-01-ade94223.jpg"}, {"n": "الحظيرة", "u": "assets/puzzle-02-895d4aa2.jpg"}, {"n": "الروضة", "u": "assets/puzzle-03-5870d970.jpg"}, {"n": "الشاطئ", "u": "assets/puzzle-04-64b62b81.jpg"}, {"n": "الصحراء", "u": "assets/puzzle-05-c75dea90.jpg"}, {"n": "الغابة", "u": "assets/puzzle-06-692d8d89.jpg"}, {"n": "القرية", "u": "assets/puzzle-07-5910f673.jpg"}, {"n": "الكعبة", "u": "assets/puzzle-08-a7180aa3.jpg"}, {"n": "المدينة", "u": "assets/puzzle-09-d69b5650.jpg"}, {"n": "المسجد", "u": "assets/puzzle-10-c5b75ab8.jpg"}, {"n": "الملعب", "u": "assets/puzzle-11-0c4f374a.jpg"}];
@@ -53,7 +61,7 @@ function win(){
 }
 function attach(t,id){
   t.onpointerdown=function(e){
-    if(busy)return;
+    if(busy||drag)return; // one finger at a time: a second touch would leave the first tile stuck
     var D=info(id);
     if(!D){t.classList.remove('no');void t.offsetWidth;t.classList.add('no');return}
     D.x=e.clientX;D.y=e.clientY;drag=D;
@@ -331,7 +339,7 @@ inits.shp=function(){
       setTimeout(function(){b.style.transition=''},230);
     }
     b.onpointerdown=function(e){
-      if(b.classList.contains('done'))return;
+      if(gdrag||b.classList.contains('done'))return; // one finger at a time
       gdrag={b:b,x:e.clientX,y:e.clientY};
       b.setPointerCapture(e.pointerId);b.style.transition='none';b.classList.add('drag');
     };
@@ -360,7 +368,9 @@ inits.shp=function(){
   });
   mix(items).forEach(function(s){
     var b=document.createElement('button');b.className='slot';b.setAttribute('aria-label','مكان الشكل');
-    b.innerHTML=s.u?'<img class="im sil" alt="" src="'+s.u+'">':sil(s);if(s.u)b.classList.add('sh');
+    // picture slots: a light silhouette with an outline, like the geometric shapes (the picture's own
+    // outline is used as a mask); the real picture appears once the piece is placed
+    b.innerHTML=s.u?'<span class="psw" aria-hidden="true"><span class="ps" style="-webkit-mask-image:url('+s.u+');mask-image:url('+s.u+')"></span></span><img class="im sil" alt="" src="'+s.u+'">':sil(s);
     b.onclick=function(e){ /* keyboard only */
       if(e.detail||!cur||b.classList.contains('ok'))return;
       if(cur===s.id)solve(P.querySelector('[data-id="'+cur+'"]'),b,s);else wrong(b);
@@ -374,6 +384,8 @@ $('restart').onclick=function(){slv=0;ssave();inits.shp()};
 
 
 setTimeout(function(){var sp=$('splash');sp.classList.add('out');setTimeout(function(){sp.remove()},450)},3000);
+// after a reload the app always starts on the home screen, so forget a game entry left in history
+try{if(inGame())history.replaceState(null,'')}catch(e){}
 show('home');
 
 // ---- offline support: only works over https (or localhost)

@@ -1,6 +1,6 @@
 // Service worker: lets the game run without internet after the first visit.
 // Bump VERSION whenever index.html, app.js or the asset list changes, so old copies are removed.
-var VERSION = 'v3';
+var VERSION = 'v4';
 var CACHE = 'fakkir-wastamti-' + VERSION;
 var PAGE = './';
 var FILES = [
@@ -9,6 +9,8 @@ var FILES = [
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png',
+  './dev-logo.png',
+  './dev-logo-white.png',
   './assets/intro-puzzle-9dc9ab63.mp3',
   './assets/intro-shapes-69217849.mp3',
   './assets/logo-99a0d23e.webp',
@@ -58,31 +60,50 @@ var FILES = [
   './assets/puzzle-11-0c4f374a.jpg'
 ];
 
+// Pictures and sounds have the content hash in their names, so they live in their own cache
+// that is NOT tied to VERSION: an update downloads only the files that are new.
+var ASSETS = 'fakkir-wastamti-assets';
+function isAsset(f) { return f.indexOf('/assets/') >= 0; }
+
 self.addEventListener('install', function (e) {
-  e.waitUntil(
-    caches.open(CACHE).then(function (c) {
-      // one by one, so a missing optional file does not block installation
-      return Promise.all(FILES.map(function (f) {
-        return c.add(f).catch(function () {});
+  e.waitUntil(Promise.all([
+    // all or nothing: if a file fails (weak connection), installation fails
+    // and the previous, complete version keeps working until the next try
+    caches.open(CACHE).then(function (c) { return c.addAll(FILES.filter(function (f) { return !isAsset(f); })); }),
+    caches.open(ASSETS).then(function (c) {
+      return Promise.all(FILES.filter(isAsset).map(function (f) {
+        return c.match(f).then(function (hit) { return hit || c.add(f); });
       }));
-    }).then(function () { return self.skipWaiting(); })
-  );
+    })
+  ]).then(function () { return self.skipWaiting(); }));
 });
 
 self.addEventListener('activate', function (e) {
+  var wanted = FILES.filter(isAsset).map(function (f) { return new URL(f, location.href).href; });
   e.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(keys.filter(function (k) { return k !== CACHE; })
+      return Promise.all(keys.filter(function (k) { return k !== CACHE && k !== ASSETS; })
         .map(function (k) { return caches.delete(k); }));
+    }).then(function () {
+      // remove pictures and sounds that the new version no longer uses
+      return caches.open(ASSETS).then(function (c) {
+        return c.keys().then(function (reqs) {
+          return Promise.all(reqs.filter(function (r) { return wanted.indexOf(r.url.split('?')[0]) < 0; })
+            .map(function (r) { return c.delete(r); }));
+        });
+      });
     }).then(function () { return self.clients.claim(); })
   );
 });
 
 // Only keep real, successful answers: an error page must never replace a good copy.
-function keep(key, res) {
-  if (res && res.ok && res.type === 'basic') {
+// For the page itself (html=true) the answer must also be an HTML page, so opening
+// /og-image.jpg in a tab can't become the offline app.
+function keep(key, res, name, html) {
+  if (res && res.ok && res.type === 'basic' &&
+      (!html || /text\/html/i.test(res.headers.get('content-type') || ''))) {
     var copy = res.clone();
-    caches.open(CACHE).then(function (c) { c.put(key, copy); });
+    caches.open(name || CACHE).then(function (c) { c.put(key, copy); });
   }
   return res;
 }
@@ -98,7 +119,7 @@ self.addEventListener('fetch', function (e) {
   // under one name, so shared links do not pile up extra copies on the phone.
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req).then(function (res) { return keep(PAGE, res); })
+      fetch(req).then(function (res) { return keep(PAGE, res, CACHE, true); })
         .catch(function () {
           return caches.match(PAGE).then(function (r) {
             return r || caches.match(req, { ignoreSearch: true });
@@ -121,7 +142,9 @@ self.addEventListener('fetch', function (e) {
   // Pictures and sounds (their names change whenever their content does): saved copy first.
   e.respondWith(
     caches.match(req, { ignoreSearch: true }).then(function (r) {
-      return r || fetch(req).then(function (res) { return keep(req, res); });
+      return r || fetch(req).then(function (res) {
+        return keep(isAsset(url.pathname) ? url.origin + url.pathname : req, res, isAsset(url.pathname) ? ASSETS : CACHE);
+      });
     })
   );
 });
