@@ -171,8 +171,21 @@ function nameShow(n){
 }
 
 // ---- winning celebration: full picture + sparkles + sounds
-var AC=null,NB=null,SUS=0;
+var AC=null,NB=null,SUS=0,MUTED=false;
+try{MUTED=localStorage.getItem('rkn_muted')==='1'}catch(e){}
+/* sound on/off button (top-left of each game); the choice is remembered */
+function paintSnd(){Array.prototype.forEach.call(document.querySelectorAll('[data-snd]'),function(b){
+  b.classList.toggle('muted',MUTED);b.setAttribute('aria-pressed',String(!MUTED));
+  b.setAttribute('aria-label',MUTED?'تشغيل الصوت':'كتم الصوت');b.title=b.getAttribute('aria-label')})}
+Array.prototype.forEach.call(document.querySelectorAll('[data-snd]'),function(b){b.onclick=function(){
+  MUTED=!MUTED;try{localStorage.setItem('rkn_muted',MUTED?'1':'0')}catch(e){}
+  if(MUTED){if(vcur){try{vcur.onended=null;vcur.stop()}catch(e){}vcur=null}if(AC){clearTimeout(SUS);try{AC.suspend()}catch(e){}}}
+  else{ac();vinit()}
+  paintSnd();
+}});
+paintSnd();
 function ac(){
+  if(MUTED)return null;
   try{
     if(!AC){var C=window.AudioContext||window.webkitAudioContext;if(C)AC=new C()}
     if(AC&&AC.state==='suspended')AC.resume();

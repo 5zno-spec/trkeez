@@ -181,6 +181,12 @@ body{background-color:var(--bg);background-image:radial-gradient(circle at 12% 8
 
 /* ---- game header: title right, level box left */
 .top{justify-content:space-between}
+/* sound on/off: top-left of each game, next to the level box */
+.topl{display:flex;align-items:center;gap:10px}
+.ib.snd{width:48px;height:48px;flex:none}
+.ib.snd svg{width:30px;height:30px}
+.snd .off,.snd.muted .on{display:none}
+.snd.muted .off{display:inline}
 .lvbox{display:flex;flex-direction:column;gap:6px;min-width:120px;padding:7px 14px 9px;border-radius:16px;
   background:linear-gradient(145deg,var(--g-hi),transparent 55%),var(--g-bg);border:1.5px solid var(--g-bd);
   -webkit-backdrop-filter:blur(14px) saturate(1.6);backdrop-filter:blur(14px) saturate(1.6);
@@ -229,7 +235,7 @@ body{background-color:var(--bg);background-image:radial-gradient(circle at 12% 8
   </section>
 
   <section class="screen" id="puz" hidden>
-    <div class="top"><h2>تركيب الصور</h2><div class="lvbox" role="group" aria-label="المرحلة"><span id="lvt1">المرحلة 1</span><div class="pb" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="pbf1"></i></div></div></div>
+    <div class="top"><h2>تركيب الصور</h2><div class="topl"><div class="lvbox" role="group" aria-label="المرحلة"><span id="lvt1">المرحلة 1</span><div class="pb" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="pbf1"></i></div></div><button class="btn ib snd" data-snd aria-label="الصوت" aria-pressed="true" title="الصوت"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 19h7l10-8v26l-10-8H8a2 2 0 01-2-2v-6a2 2 0 012-2z" fill="#fcc946" stroke="#e29a1c" stroke-width="2.5" stroke-linejoin="round"/><g class="on" fill="none" stroke="#54c0cc" stroke-width="3.5" stroke-linecap="round"><path d="M31 18q4 6 0 12"/><path d="M36 13q8 11 0 22"/></g><g class="off" fill="none" stroke="#f08454" stroke-width="4" stroke-linecap="round"><path d="M31 18l10 12M41 18L31 30"/></g></svg></button></div></div>
     <div class="panel">
       <p class="hint">اسحب المربع لتكتشف الصورة</p>
       <div id="board"></div>
@@ -241,7 +247,7 @@ body{background-color:var(--bg);background-image:radial-gradient(circle at 12% 8
   </section>
 
   <section class="screen" id="shp" hidden>
-    <div class="top"><h2>ربط الأشكال</h2><div class="lvbox" role="group" aria-label="المرحلة"><span id="lvt2">المرحلة 1</span><div class="pb" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="pbf2"></i></div></div></div>
+    <div class="top"><h2>ربط الأشكال</h2><div class="topl"><div class="lvbox" role="group" aria-label="المرحلة"><span id="lvt2">المرحلة 1</span><div class="pb" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="pbf2"></i></div></div><button class="btn ib snd" data-snd aria-label="الصوت" aria-pressed="true" title="الصوت"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 19h7l10-8v26l-10-8H8a2 2 0 01-2-2v-6a2 2 0 012-2z" fill="#fcc946" stroke="#e29a1c" stroke-width="2.5" stroke-linejoin="round"/><g class="on" fill="none" stroke="#54c0cc" stroke-width="3.5" stroke-linecap="round"><path d="M31 18q4 6 0 12"/><path d="M36 13q8 11 0 22"/></g><g class="off" fill="none" stroke="#f08454" stroke-width="4" stroke-linecap="round"><path d="M31 18l10 12M41 18L31 30"/></g></svg></button></div></div>
     <div class="panel">
       <p class="hint" id="h2">اسحب كل شكل إلى مكانه الصحيح</p>
       <div class="shapes" id="pieces"></div>
