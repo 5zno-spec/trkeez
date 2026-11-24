@@ -11,7 +11,7 @@ function show(id,fromHistory){
   Array.prototype.forEach.call(document.querySelectorAll('.screen'),function(s){s.hidden=s.id!==id});
   if(inits[id])inits[id]();
   if(id==='puz'||id==='shp'){ac();vinit();vplay(id==='puz'?'w:__pz':'w:__drag')}
-  else if(id==='cls'){ac();vinit()}
+  else if(id==='cls'){ac();vinit();vplay('w:__sort')}
   if(!fromHistory&&id!=='home'){try{if(inGame())history.replaceState({s:id},'');else history.pushState({s:id},'')}catch(e){}}
   window.scrollTo(0,0);
 }
@@ -133,7 +133,7 @@ $('hint').onclick=function(){
 
 
 // ---- voice clips (praise + place names)
-var VW={"المدينة": "assets/name-01-fb76c207.mp3", "القرية": "assets/name-02-874348ca.mp3", "الصحراء": "assets/name-03-093edb70.mp3", "الروضة": "assets/name-04-35ef5e66.mp3", "الملعب": "assets/name-05-e9a94c34.mp3", "المسجد": "assets/name-06-44058add.mp3", "الكعبة": "assets/name-07-3e6bbb0e.mp3", "الحظيرة": "assets/name-08-36e67a40.mp3", "البحر": "assets/name-09-214a0b38.mp3", "الغابة": "assets/name-10-b84133c5.mp3", "الشاطئ": "assets/name-11-cb769ef9.mp3", "__drag": "assets/intro-shapes-69217849.mp3", "__pz": "assets/intro-puzzle-9dc9ab63.mp3"};
+var VW={"المدينة": "assets/name-01-fb76c207.mp3", "القرية": "assets/name-02-874348ca.mp3", "الصحراء": "assets/name-03-093edb70.mp3", "الروضة": "assets/name-04-35ef5e66.mp3", "الملعب": "assets/name-05-e9a94c34.mp3", "المسجد": "assets/name-06-44058add.mp3", "الكعبة": "assets/name-07-3e6bbb0e.mp3", "الحظيرة": "assets/name-08-36e67a40.mp3", "البحر": "assets/name-09-214a0b38.mp3", "الغابة": "assets/name-10-b84133c5.mp3", "الشاطئ": "assets/name-11-cb769ef9.mp3", "__drag": "assets/intro-shapes-69217849.mp3", "__pz": "assets/intro-puzzle-9dc9ab63.mp3", "__sort": "assets/intro-sort-1c648d11.mp3"};
 var VP=["assets/praise-01-169614e2.mp3", "assets/praise-02-c0291ee8.mp3", "assets/praise-03-378aa3ee.mp3", "assets/praise-04-103ffafb.mp3"];
 var vcur=null,vpi=-1,VB={},VL={},vinited=false;
 function vsrc(key){return key.charAt(0)==='p'?VP[+key.slice(2)]:VW[key.slice(2)]}
@@ -151,7 +151,7 @@ function vload(key){
 /* the short clips that play right away (intros + praise) are prepared after the first tap */
 function vinit(){
   if(vinited||!AC)return;vinited=true;
-  ['w:__pz','w:__drag'].concat(VP.map(function(u,i){return 'p:'+i})).forEach(vload);
+  ['w:__pz','w:__drag','w:__sort'].concat(VP.map(function(u,i){return 'p:'+i})).forEach(vload);
 }
 ['pointerdown','touchend','keydown','click'].forEach(function(ev){document.addEventListener(ev,function(){ac();vinit()},{passive:true})});
 function vplay(key,cb){
