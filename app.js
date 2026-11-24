@@ -387,28 +387,19 @@ var CK='rkn_sort_level',clv=0,crun=0,cdrag=null,csel=false;
 try{clv=Math.max(0,parseInt(localStorage.getItem(CK),10)||0)}catch(e){}
 function csave(){try{localStorage.setItem(CK,String(clv))}catch(e){}}
 function csvg(x){return '<svg viewBox="0 0 48 48" aria-hidden="true">'+x+'</svg>'}
-// box ids: an/ve/na/ob match the "g" field of PICS; pl = the places of the picture puzzle
+// box ids match the "g" field of PICS (single cut-out pictures, no backgrounds)
 var CATS={
   an:{n:'حيوانات',ic:csvg('<ellipse cx="24" cy="32" rx="10" ry="8" fill="#f08454" stroke="#c9602f" stroke-width="2.5"/><circle cx="11" cy="22" r="4.5" fill="#f08454" stroke="#c9602f" stroke-width="2.5"/><circle cx="19" cy="13" r="4.5" fill="#f08454" stroke="#c9602f" stroke-width="2.5"/><circle cx="29" cy="13" r="4.5" fill="#f08454" stroke="#c9602f" stroke-width="2.5"/><circle cx="37" cy="22" r="4.5" fill="#f08454" stroke="#c9602f" stroke-width="2.5"/>')},
   ve:{n:'مركبات',ic:csvg('<path d="M5 31l5-11h28l5 11v7H5z" fill="#54c0cc" stroke="#2f8fa0" stroke-width="2.5" stroke-linejoin="round"/><path d="M13 22h22l3 8H10z" fill="#e6f6fa"/><circle cx="14" cy="39" r="5" fill="#26364a" stroke="#fff" stroke-width="1.5"/><circle cx="34" cy="39" r="5" fill="#26364a" stroke="#fff" stroke-width="1.5"/>')},
   na:{n:'طبيعة',ic:csvg('<path d="M9 38C9 21 20 10 39 9c0 19-9 30-26 30z" fill="#8bc34a" stroke="#5e9a2e" stroke-width="2.5" stroke-linejoin="round"/><path d="M12 36L30 18" stroke="#5e9a2e" stroke-width="2.5" stroke-linecap="round"/>')},
-  ob:{n:'أدوات',ic:csvg('<rect x="21" y="16" width="7" height="26" rx="2.5" fill="#f08454" stroke="#c9602f" stroke-width="2" transform="rotate(25 24 28)"/><rect x="9" y="8" width="30" height="11" rx="3" fill="#fcc946" stroke="#e29a1c" stroke-width="2.5" transform="rotate(25 24 28)"/>')},
-  pl:{n:'أماكن',ic:csvg('<path d="M6 24L24 8l18 16z" fill="#f08454" stroke="#c9602f" stroke-width="2.5" stroke-linejoin="round"/><rect x="11" y="24" width="26" height="17" rx="2" fill="#fcc946" stroke="#e29a1c" stroke-width="2.5"/><rect x="20" y="30" width="8" height="11" rx="2" fill="#1f6e9e"/>')}
+  ob:{n:'أدوات',ic:csvg('<rect x="21" y="16" width="7" height="26" rx="2.5" fill="#f08454" stroke="#c9602f" stroke-width="2" transform="rotate(25 24 28)"/><rect x="9" y="8" width="30" height="11" rx="3" fill="#fcc946" stroke="#e29a1c" stroke-width="2.5" transform="rotate(25 24 28)"/>')}
 };
-// the hand is not a tool and the barn picture shows animals, so both are left out to avoid confusion
-function cpool(id){
-  if(id==='pl')return IMGS.filter(function(x){return x.n!=='الحظيرة'});
-  return PICS.filter(function(p){return p.g===id&&p.n!=='يد'});
-}
+// only the single cut-out pictures (PICS), never the puzzle photos with backgrounds; the hand is not a tool, so it is left out
+function cpool(id){return PICS.filter(function(p){return p.g===id&&p.n!=='يد'})}
 function ccfg(l){return l<2?{k:2,n:4}:l<5?{k:3,n:6}:{k:4,n:8}}
-// a round: k boxes, 2 pictures for each; nature and places never share a round (the sea, the forest... are both)
+// a round: k boxes, 2 pictures for each
 function cround(){
-  var c=ccfg(clv),all=mix(['an','ve','na','ob','pl']),ids=[],items=[],i,id;
-  for(i=0;i<all.length&&ids.length<c.k;i++){
-    id=all[i];
-    if((id==='na'&&ids.indexOf('pl')>=0)||(id==='pl'&&ids.indexOf('na')>=0))continue;
-    ids.push(id);
-  }
+  var c=ccfg(clv),ids=mix(['an','ve','na','ob']).slice(0,c.k),items=[];
   ids.forEach(function(d){mix(cpool(d)).slice(0,c.n/c.k).forEach(function(x){items.push({n:x.n,u:x.u,c:d})})});
   return {ids:ids,items:mix(items)};
 }
@@ -428,7 +419,7 @@ inits.cls=function(){
     done++;setPB(3,done/total);
     if(done<total){
       m.textContent='صح! هذه '+s.n+' 👍';
-      if(s.c==='pl')sayName(s.n);else praise();
+      praise();
       setTimeout(function(){if(run===crun&&!$('cls').hidden)next()},450);
     }else{
       clv++;csave();m.textContent='ممتاز! أكملت المرحلة '+clv+' 🎉';winSound();
