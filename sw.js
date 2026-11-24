@@ -1,6 +1,6 @@
 // Service worker: lets the game run without internet after the first visit.
 // Bump VERSION whenever index.html, app.js or the asset list changes, so old copies are removed.
-var VERSION = 'v7';
+var VERSION = 'v8';
 var CACHE = 'fakkir-wastamti-' + VERSION;
 var PAGE = './';
 var FILES = [
@@ -11,6 +11,13 @@ var FILES = [
   './icon-512.png',
   './dev-logo.png',
   './dev-logo-white.png',
+  './assets/cat-an-896a1c24.mp3',
+  './assets/cat-fd-25448982.mp3',
+  './assets/cat-na-85c5485c.mp3',
+  './assets/cat-ob-420f9c4f.mp3',
+  './assets/cat-pl-4bd06255.mp3',
+  './assets/cat-ve-95abdd2c.mp3',
+  './assets/or-4c49b1bd.mp3',
   './assets/intro-puzzle-9dc9ab63.mp3',
   './assets/intro-shapes-69217849.mp3',
   './assets/intro-sort-1c648d11.mp3',

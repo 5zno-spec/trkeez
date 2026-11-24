@@ -9,9 +9,10 @@ function inGame(){return !!(history.state&&history.state.s)}
 function show(id,fromHistory){
   hideWin();
   Array.prototype.forEach.call(document.querySelectorAll('.screen'),function(s){s.hidden=s.id!==id});
+  /* sort game: the intro phrase is spoken by inits.cls itself, right before the box names, so the two never overlap */
+  if(id==='cls'){ac();vinit();cfirst=true}
   if(inits[id])inits[id]();
   if(id==='puz'||id==='shp'){ac();vinit();vplay(id==='puz'?'w:__pz':'w:__drag')}
-  else if(id==='cls'){ac();vinit();vplay('w:__sort')}
   if(!fromHistory&&id!=='home'){try{if(inGame())history.replaceState({s:id},'');else history.pushState({s:id},'')}catch(e){}}
   window.scrollTo(0,0);
 }
@@ -133,7 +134,7 @@ $('hint').onclick=function(){
 
 
 // ---- voice clips (praise + place names)
-var VW={"المدينة": "assets/name-01-fb76c207.mp3", "القرية": "assets/name-02-874348ca.mp3", "الصحراء": "assets/name-03-093edb70.mp3", "الروضة": "assets/name-04-35ef5e66.mp3", "الملعب": "assets/name-05-e9a94c34.mp3", "المسجد": "assets/name-06-44058add.mp3", "الكعبة": "assets/name-07-3e6bbb0e.mp3", "الحظيرة": "assets/name-08-36e67a40.mp3", "البحر": "assets/name-09-214a0b38.mp3", "الغابة": "assets/name-10-b84133c5.mp3", "الشاطئ": "assets/name-11-cb769ef9.mp3", "__drag": "assets/intro-shapes-69217849.mp3", "__pz": "assets/intro-puzzle-9dc9ab63.mp3", "__sort": "assets/intro-sort-1c648d11.mp3"};
+var VW={"المدينة": "assets/name-01-fb76c207.mp3", "القرية": "assets/name-02-874348ca.mp3", "الصحراء": "assets/name-03-093edb70.mp3", "الروضة": "assets/name-04-35ef5e66.mp3", "الملعب": "assets/name-05-e9a94c34.mp3", "المسجد": "assets/name-06-44058add.mp3", "الكعبة": "assets/name-07-3e6bbb0e.mp3", "الحظيرة": "assets/name-08-36e67a40.mp3", "البحر": "assets/name-09-214a0b38.mp3", "الغابة": "assets/name-10-b84133c5.mp3", "الشاطئ": "assets/name-11-cb769ef9.mp3", "__drag": "assets/intro-shapes-69217849.mp3", "__pz": "assets/intro-puzzle-9dc9ab63.mp3", "__sort": "assets/intro-sort-1c648d11.mp3", "__or": "assets/or-4c49b1bd.mp3", "__cat_an": "assets/cat-an-896a1c24.mp3", "__cat_ve": "assets/cat-ve-95abdd2c.mp3", "__cat_na": "assets/cat-na-85c5485c.mp3", "__cat_ob": "assets/cat-ob-420f9c4f.mp3", "__cat_fd": "assets/cat-fd-25448982.mp3", "__cat_pl": "assets/cat-pl-4bd06255.mp3"};
 var VP=["assets/praise-01-169614e2.mp3", "assets/praise-02-c0291ee8.mp3", "assets/praise-03-378aa3ee.mp3", "assets/praise-04-103ffafb.mp3"];
 var vcur=null,vpi=-1,VB={},VL={},vinited=false;
 function vsrc(key){return key.charAt(0)==='p'?VP[+key.slice(2)]:VW[key.slice(2)]}
@@ -383,7 +384,7 @@ $('again').onclick=inits.shp;
 $('restart').onclick=function(){slv=0;ssave();inits.shp()};
 
 // ---- 3. sort the pictures: drag each picture into the box it belongs to
-var CK='rkn_sort_level',clv=0,crun=0,cdrag=null,csel=false;
+var CK='rkn_sort_level',clv=0,crun=0,cdrag=null,csel=false,cfirst=false;
 try{clv=Math.max(0,parseInt(localStorage.getItem(CK),10)||0)}catch(e){}
 function csave(){try{localStorage.setItem(CK,String(clv))}catch(e){}}
 function csvg(x){return '<svg viewBox="0 0 48 48" aria-hidden="true">'+x+'</svg>'}
@@ -413,6 +414,16 @@ inits.cls=function(){
   B.innerHTML='';P.innerHTML='';m.textContent='';cdrag=null;csel=false;
   B.style.setProperty('--k',r.ids.length);
   $('lvt3').textContent=(clv+1);setPB(3,0);
+  /* voice: on opening the game "اسحب كل صورة", then in every round the box names from the right box to the
+     left one, joined by "أو" (the page is right-to-left, so the first box is the right-hand one) */
+  var seq=[],intro=cfirst;cfirst=false;
+  r.ids.forEach(function(id,i){if(i)seq.push('w:__or');seq.push('w:__cat_'+id)});
+  seq.forEach(function(k){vload(k)});
+  function speak(i){
+    if(run!==crun||$('cls').hidden||i>=seq.length)return;
+    vplay(seq[i],function(){speak(i+1)});
+  }
+  if(intro)vplay('w:__sort',function(){speak(0)});else speak(0);
   function hit(x,y){
     for(var i=0;i<boxes.length;i++){var q=boxes[i].el.getBoundingClientRect();if(x>=q.left&&x<=q.right&&y>=q.top&&y<=q.bottom)return boxes[i]}
     return null;
