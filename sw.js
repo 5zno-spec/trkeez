@@ -1,6 +1,6 @@
 // Service worker: lets the game run without internet after the first visit.
 // Bump VERSION whenever index.html, app.js or the asset list changes, so old copies are removed.
-var VERSION = 'v5';
+var VERSION = 'v6';
 var CACHE = 'fakkir-wastamti-' + VERSION;
 var PAGE = './';
 var FILES = [
@@ -43,6 +43,40 @@ var FILES = [
   './assets/pic-16-47bf46d8.webp',
   './assets/pic-17-4416aae3.webp',
   './assets/pic-18-5ba1898b.webp',
+  './assets/pic-19-17e250a6.webp',
+  './assets/pic-20-d2aedd50.webp',
+  './assets/pic-21-3ddd8cba.webp',
+  './assets/pic-22-143ad0ec.webp',
+  './assets/pic-23-1c059124.webp',
+  './assets/pic-24-9a48697d.webp',
+  './assets/pic-25-efb297ef.webp',
+  './assets/pic-26-c86f0d23.webp',
+  './assets/pic-27-d7bb6f45.webp',
+  './assets/pic-28-7a81b17f.webp',
+  './assets/pic-29-d9eed189.webp',
+  './assets/pic-30-eb9ebcd4.webp',
+  './assets/pic-31-062b2059.webp',
+  './assets/pic-32-451bcea8.webp',
+  './assets/pic-33-0dbebbf5.webp',
+  './assets/pic-34-9a4cd947.webp',
+  './assets/pic-35-a9d31c67.webp',
+  './assets/pic-36-c35042eb.webp',
+  './assets/pic-37-e00cf918.webp',
+  './assets/pic-38-79c868b2.webp',
+  './assets/pic-39-a15f7e21.webp',
+  './assets/pic-40-4567e1cb.webp',
+  './assets/pic-41-4d276bf6.webp',
+  './assets/pic-42-5d2c3fcd.webp',
+  './assets/pic-43-6bd3629a.webp',
+  './assets/pic-44-ae96fb5e.webp',
+  './assets/pic-45-e249a54a.webp',
+  './assets/pic-46-fc217024.webp',
+  './assets/pic-47-6a438f56.webp',
+  './assets/pic-48-bb19ffa5.webp',
+  './assets/pic-49-b2c90f1e.webp',
+  './assets/pic-50-7b2ed128.webp',
+  './assets/pic-51-96d3018c.webp',
+  './assets/pic-52-8fd17d3a.webp',
   './assets/praise-01-169614e2.mp3',
   './assets/praise-02-c0291ee8.mp3',
   './assets/praise-03-378aa3ee.mp3',

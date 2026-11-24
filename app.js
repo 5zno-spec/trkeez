@@ -387,19 +387,24 @@ var CK='rkn_sort_level',clv=0,crun=0,cdrag=null,csel=false;
 try{clv=Math.max(0,parseInt(localStorage.getItem(CK),10)||0)}catch(e){}
 function csave(){try{localStorage.setItem(CK,String(clv))}catch(e){}}
 function csvg(x){return '<svg viewBox="0 0 48 48" aria-hidden="true">'+x+'</svg>'}
-// box ids match the "g" field of PICS (single cut-out pictures, no backgrounds)
+// box ids match the "g" field of PICS and XPICS (single cut-out pictures, no backgrounds); pl = places
 var CATS={
   an:{n:'حيوانات',ic:csvg('<ellipse cx="24" cy="32" rx="10" ry="8" fill="#f08454" stroke="#c9602f" stroke-width="2.5"/><circle cx="11" cy="22" r="4.5" fill="#f08454" stroke="#c9602f" stroke-width="2.5"/><circle cx="19" cy="13" r="4.5" fill="#f08454" stroke="#c9602f" stroke-width="2.5"/><circle cx="29" cy="13" r="4.5" fill="#f08454" stroke="#c9602f" stroke-width="2.5"/><circle cx="37" cy="22" r="4.5" fill="#f08454" stroke="#c9602f" stroke-width="2.5"/>')},
   ve:{n:'مركبات',ic:csvg('<path d="M5 31l5-11h28l5 11v7H5z" fill="#54c0cc" stroke="#2f8fa0" stroke-width="2.5" stroke-linejoin="round"/><path d="M13 22h22l3 8H10z" fill="#e6f6fa"/><circle cx="14" cy="39" r="5" fill="#26364a" stroke="#fff" stroke-width="1.5"/><circle cx="34" cy="39" r="5" fill="#26364a" stroke="#fff" stroke-width="1.5"/>')},
   na:{n:'طبيعة',ic:csvg('<path d="M9 38C9 21 20 10 39 9c0 19-9 30-26 30z" fill="#8bc34a" stroke="#5e9a2e" stroke-width="2.5" stroke-linejoin="round"/><path d="M12 36L30 18" stroke="#5e9a2e" stroke-width="2.5" stroke-linecap="round"/>')},
-  ob:{n:'أدوات',ic:csvg('<rect x="21" y="16" width="7" height="26" rx="2.5" fill="#f08454" stroke="#c9602f" stroke-width="2" transform="rotate(25 24 28)"/><rect x="9" y="8" width="30" height="11" rx="3" fill="#fcc946" stroke="#e29a1c" stroke-width="2.5" transform="rotate(25 24 28)"/>')}
+  ob:{n:'أدوات',ic:csvg('<rect x="21" y="16" width="7" height="26" rx="2.5" fill="#f08454" stroke="#c9602f" stroke-width="2" transform="rotate(25 24 28)"/><rect x="9" y="8" width="30" height="11" rx="3" fill="#fcc946" stroke="#e29a1c" stroke-width="2.5" transform="rotate(25 24 28)"/>')},
+  fd:{n:'طعام',ic:csvg('<circle cx="24" cy="28" r="14" fill="#ef476f" stroke="#a32046" stroke-width="2.5"/><path d="M24 14c0-5 2-8 7-9" stroke="#5e9a2e" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="18" cy="23" rx="3" ry="4.5" fill="#fff" opacity=".5" transform="rotate(25 18 23)"/>')},
+  pl:{n:'أماكن',ic:csvg('<path d="M6 24L24 8l18 16z" fill="#f08454" stroke="#c9602f" stroke-width="2.5" stroke-linejoin="round"/><rect x="11" y="24" width="26" height="17" rx="2" fill="#fcc946" stroke="#e29a1c" stroke-width="2.5"/><rect x="20" y="30" width="8" height="11" rx="2" fill="#1f6e9e"/>')}
 };
-// only the single cut-out pictures (PICS), never the puzzle photos with backgrounds; the hand is not a tool, so it is left out
-function cpool(id){return PICS.filter(function(p){return p.g===id&&p.n!=='يد'})}
-function ccfg(l){return l<2?{k:2,n:4}:l<5?{k:3,n:6}:{k:4,n:8}}
-// a round: k boxes, 2 pictures for each
+// more single cut-out pictures (from the letters garden app) used by the sort game only; the shapes game keeps using PICS
+var XPICS=[{"n": "أرنب", "g": "an", "u": "assets/pic-19-17e250a6.webp"}, {"n": "أسد", "g": "an", "u": "assets/pic-20-d2aedd50.webp"}, {"n": "بقرة", "g": "an", "u": "assets/pic-21-3ddd8cba.webp"}, {"n": "بطة", "g": "an", "u": "assets/pic-22-143ad0ec.webp"}, {"n": "ثعلب", "g": "an", "u": "assets/pic-23-1c059124.webp"}, {"n": "ثور", "g": "an", "u": "assets/pic-24-9a48697d.webp"}, {"n": "جمل", "g": "an", "u": "assets/pic-25-efb297ef.webp"}, {"n": "حمامة", "g": "an", "u": "assets/pic-26-c86f0d23.webp"}, {"n": "خروف", "g": "an", "u": "assets/pic-27-d7bb6f45.webp"}, {"n": "دجاجة", "g": "an", "u": "assets/pic-28-7a81b17f.webp"}, {"n": "زرافة", "g": "an", "u": "assets/pic-29-d9eed189.webp"}, {"n": "سمكة", "g": "an", "u": "assets/pic-30-eb9ebcd4.webp"}, {"n": "صقر", "g": "an", "u": "assets/pic-31-062b2059.webp"}, {"n": "ضبع", "g": "an", "u": "assets/pic-32-451bcea8.webp"}, {"n": "ظبي", "g": "an", "u": "assets/pic-33-0dbebbf5.webp"}, {"n": "غزالة", "g": "an", "u": "assets/pic-34-9a4cd947.webp"}, {"n": "كلب", "g": "an", "u": "assets/pic-35-a9d31c67.webp"}, {"n": "نحلة", "g": "an", "u": "assets/pic-36-c35042eb.webp"}, {"n": "وزغ", "g": "an", "u": "assets/pic-37-e00cf918.webp"}, {"n": "يربوع", "g": "an", "u": "assets/pic-38-79c868b2.webp"}, {"n": "سفينة", "g": "ve", "u": "assets/pic-39-a15f7e21.webp"}, {"n": "جبل", "g": "na", "u": "assets/pic-40-4567e1cb.webp"}, {"n": "وردة", "g": "na", "u": "assets/pic-41-4d276bf6.webp"}, {"n": "حبل", "g": "ob", "u": "assets/pic-42-5d2c3fcd.webp"}, {"n": "فأس", "g": "ob", "u": "assets/pic-43-6bd3629a.webp"}, {"n": "قلم", "g": "ob", "u": "assets/pic-44-ae96fb5e.webp"}, {"n": "طبق", "g": "ob", "u": "assets/pic-45-e249a54a.webp"}, {"n": "ظرف", "g": "ob", "u": "assets/pic-46-fc217024.webp"}, {"n": "تمر", "g": "fd", "u": "assets/pic-47-6a438f56.webp"}, {"n": "زيت", "g": "fd", "u": "assets/pic-48-bb19ffa5.webp"}, {"n": "لحم", "g": "fd", "u": "assets/pic-49-b2c90f1e.webp"}, {"n": "ليمون", "g": "fd", "u": "assets/pic-50-7b2ed128.webp"}, {"n": "هرم", "g": "pl", "u": "assets/pic-51-96d3018c.webp"}, {"n": "خيمة", "g": "pl", "u": "assets/pic-52-8fd17d3a.webp"}];
+// only single cut-out pictures, never the puzzle photos with backgrounds; the hand is not a tool, so it is left out;
+// the Kaaba is the only "bu" picture of PICS, so it joins the places box
+function cpool(id){return PICS.filter(function(p){return p.g===(id==='pl'?'bu':id)&&p.n!=='يد'}).concat(XPICS.filter(function(p){return p.g===id}))}
+function ccfg(l){return l<2?{k:2,n:4}:l<5?{k:3,n:6}:l<10?{k:4,n:8}:{k:4,n:12}}
+// a round: k boxes, n/k pictures for each
 function cround(){
-  var c=ccfg(clv),ids=mix(['an','ve','na','ob']).slice(0,c.k),items=[];
+  var c=ccfg(clv),ids=mix(['an','ve','na','ob','fd','pl']).slice(0,c.k),items=[];
   ids.forEach(function(d){mix(cpool(d)).slice(0,c.n/c.k).forEach(function(x){items.push({n:x.n,u:x.u,c:d})})});
   return {ids:ids,items:mix(items)};
 }
