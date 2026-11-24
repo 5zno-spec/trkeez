@@ -414,22 +414,13 @@ inits.cls=function(){
   B.innerHTML='';P.innerHTML='';m.textContent='';cdrag=null;csel=false;
   B.style.setProperty('--k',r.ids.length);
   $('lvt3').textContent=(clv+1);setPB(3,0);
-  /* voice: on opening the game "اسحب كل صورة", then in every round the box names from the right box to the
-     left one, joined by "أو" (the page is right-to-left, so the first box is the right-hand one) */
-  var seq=[],intro=cfirst;cfirst=false;
-  r.ids.forEach(function(id,i){if(i)seq.push('w:__or');seq.push('w:__cat_'+id)});
-  seq.forEach(function(k){vload(k)});
-  function speak(i){
-    if(run!==crun||$('cls').hidden||i>=seq.length)return;
-    vplay(seq[i],function(){speak(i+1)});
-  }
-  if(intro)vplay('w:__sort',function(){speak(0)});else speak(0);
   function hit(x,y){
     for(var i=0;i<boxes.length;i++){var q=boxes[i].el.getBoundingClientRect();if(x>=q.left&&x<=q.right&&y>=q.top&&y<=q.bottom)return boxes[i]}
     return null;
   }
   function clearOver(){boxes.forEach(function(o){o.el.classList.remove('over')})}
   function good(b,t,s){
+    stopSay();
     locked=true;csel=false;t.el.classList.remove('over','hit');void t.el.offsetWidth;t.el.classList.add('hit');
     b.classList.remove('drag','sel');b.style.transition='opacity .25s';b.style.opacity='0';
     done++;setPB(3,done/total);
@@ -495,6 +486,22 @@ inits.cls=function(){
     };
     B.appendChild(el);boxes.push({el:el,id:id});
   });
+  /* voice: on opening the game "اسحب كل صورة", then in every round the box names from the right-hand box to the
+     left-hand one, joined by "أو". The order follows where the boxes really are on screen (right to left), and
+     the box being named is marked while it is spoken. */
+  var intro=cfirst,tok=0,seq=[];cfirst=false;
+  function clearSay(){boxes.forEach(function(o){o.el.classList.remove('say')})}
+  function stopSay(){tok++;clearSay()}
+  boxes.slice().sort(function(a,b){return b.el.getBoundingClientRect().left-a.el.getBoundingClientRect().left})
+    .forEach(function(o,i){if(i)seq.push({key:'w:__or'});seq.push({key:'w:__cat_'+o.id,el:o.el})});
+  seq.forEach(function(q){vload(q.key)});
+  function speak(i,t){
+    clearSay();
+    if(t!==tok||run!==crun||$('cls').hidden||i>=seq.length)return;
+    var q=seq[i];if(q.el)q.el.classList.add('say');
+    vplay(q.key,function(){speak(i+1,t)});
+  }
+  if(intro)vplay('w:__sort',function(){speak(0,tok)});else speak(0,tok);
   next();
 };
 $('cagain').onclick=inits.cls;
